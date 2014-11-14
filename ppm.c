@@ -57,9 +57,8 @@ int main(int argc, char* argv[])
   ppm_desaturate(image_bw, width, height);
 
   // Write the desaturated image into "gargouille_BW.ppm"
-  FILE* ppm_output = fopen("gargouille_BW.ppm", "wb");
+  FILE* ppm_output;
   ppm_write_to_file(width, height, image_bw, ppm_output);
-  fclose(ppm_output);
 
   // Free the desaturated image
   free(image_bw);
@@ -81,7 +80,6 @@ int main(int argc, char* argv[])
   // Write the desaturated image into "gargouille_small.ppm"
   ppm_output = fopen("gargouille_small.ppm", "wb");
   ppm_write_to_file(width_small, height_small, image_small, ppm_output);
-  fclose(ppm_output);
 
   // Free the not yet freed images
   free(image);
@@ -97,9 +95,9 @@ int main(int argc, char* argv[])
 //============================================================================
 void ppm_write_to_file(int width, int height, u_char* data, FILE* file)
 {
-  //Open gargouille file
-  file =  fopen("gargouille.ppm", "rb");
-  
+  //Open new gargouille BW file
+  file = fopen("gargouille_BW.ppm", "wb");
+
   // Write header
   fprintf(file, "P6\n%d %d\n255\n", width, height);
 
@@ -112,7 +110,10 @@ void ppm_write_to_file(int width, int height, u_char* data, FILE* file)
 
 void ppm_read_from_file(int *width, int *height, u_char** data, FILE* file)
 {
-  // Read file header
+  //Open gargouille file
+  file =  fopen("gargouille.ppm", "rb");
+ 
+ // Read file header
   fscanf(file, "P6\n%d %d\n255\n", width, height);
 
   // Allocate memory according to width and height
@@ -120,6 +121,9 @@ void ppm_read_from_file(int *width, int *height, u_char** data, FILE* file)
 
   // Read the actual image data
   fread(*data, 3, (*width) * (*height), file);
+
+  // Close file
+  fclose(file);  
 }
 
 void ppm_desaturate(u_char* image, int width, int height)
