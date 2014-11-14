@@ -38,9 +38,9 @@ int main(int argc, char* argv[])
   u_char* image = NULL;
   int width;
   int height;
-  FILE* ppm_input = fopen("gargouille.ppm", "rb");
+  FILE* ppm_input;
   ppm_read_from_file(&width, &height, &image, ppm_input);
-  fclose(ppm_input);
+  
 
 
   //--------------------------------------------------------------------------
@@ -97,11 +97,17 @@ int main(int argc, char* argv[])
 //============================================================================
 void ppm_write_to_file(int width, int height, u_char* data, FILE* file)
 {
+  //Open gargouille file
+  file =  fopen("gargouille.ppm", "rb");
+  
   // Write header
   fprintf(file, "P6\n%d %d\n255\n", width, height);
 
   // Write pixels
   fwrite(data, 3, width*height, file);
+
+  // Close file
+  fclose(file);  
 }
 
 void ppm_read_from_file(int *width, int *height, u_char** data, FILE* file)
