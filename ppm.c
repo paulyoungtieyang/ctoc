@@ -6,37 +6,38 @@
 
 
 
-//============================================================================
-//                           Function declarations
-//============================================================================
-// Write the image contained in <data> (of size <width> * <height>)
-// into plain RGB ppm file <file>
-void ppm_write_to_file(int width, int height, u_char* data, char* file);
-
-// Read the image contained in plain RGB ppm file <file>
-// into <data> and set <width> and <height> accordingly
-// Warning: data is malloc_ed, don't forget to free it
-void ppm_read_from_file(int *width, int *height, u_char** data, char* file);
-
-// Desaturate (transform to B&W) <image> (of size <width> * <height>)
-void ppm_desaturate(u_char* image, int width, int height);
-
-// Shrink image (of original size <width> * <height>) by factor <factor>
-// <width> and <height> are updated accordingly
-void ppm_shrink(u_char** image, int *width, int *height, int factor);
-
 
 //============================================================================
 //                          Struct declarations & definitions
 //                      (struct must be declared before main : memory space needed MUST be known)
 //============================================================================
-struct picture
+typedef struct
 {
   int w; //for width
   int h; //for height
   u_char* matrix; //for datas
   char* n; // for name
-}; 
+} picture; 
+
+
+//============================================================================
+//                           Function declarations
+//============================================================================
+// Write the image contained in <data> (of size <width> * <height>)
+// into plain RGB ppm file <file>
+void ppm_write_to_file(picture image);
+
+// Read the image contained in plain RGB ppm file <file>
+// into <data> and set <width> and <height> accordingly
+// Warning: data is malloc_ed, don't forget to free it
+void ppm_read_from_file(picture& image);
+
+// Desaturate (transform to B&W) <image> (of size <width> * <height>)
+void ppm_desaturate(picture image);
+
+// Shrink image (of original size <width> * <height>) by factor <factor>
+// <width> and <height> are updated accordingly
+void ppm_shrink(picture& image, int factor);
 
 
 
@@ -48,12 +49,11 @@ int main(int argc, char* argv[])
   //--------------------------------------------------------------------------
   // Read file "gargouille.ppm" into image (width and height)
   //--------------------------------------------------------------------------
-  
-  u_char* image = NULL;
-  int width;
-  int height;
-  char* ppm_input="gargouille.ppm";
-  ppm_read_from_file(&width, &height, &image, ppm_input);
+  picture image;
+  image.matrix=NULL;
+  image.n="gargouille.ppm";
+
+  ppm_read_from_file(image);
   
 
 
@@ -62,20 +62,19 @@ int main(int argc, char* argv[])
   // write it into "gargouille_BW.ppm"
   //--------------------------------------------------------------------------
   // Copy image into image_bw
-  struct picture image_bw;
-  image_bw.w = width;
-  image_bw.h = height; 
-  image_bw.matrix = (u_char*) malloc (3 * image_bw.w * image_bw.h * sizeof(u_char)); 
+  picture image_bw;
+  image_bw.w = image.w;
+  image_bw.h = image.h; 
+  image_bw.matrix = (u_char*) malloc (3 * image.w * image.h * sizeof(image_bw.matrix)); 
+  memcpy(image_bw.matrix, image.matrix, 3 * image_bw.w * image_bw.h * sizeof(*image_bw.matrix));
   
-  memcpy(image_bw.matrix, image, 3 * width * height * sizeof(*image_bw.matrix));
-
 
   // Desaturate image_bw
-  ppm_desaturate(image_bw.matrix, width, height);
+  ppm_desaturate(image_bw);
 
   // Write the desaturated image into "gargouille_BW.ppm"
   image_bw.n ="gargouille_BW.ppm" ;
-  ppm_write_to_file(width, height, image_bw.matrix,image_bw.n);
+  ppm_write_to_file(image_bw);
 
   // Free the desaturated image
   free(image_bw.matrix);
@@ -86,22 +85,21 @@ int main(int argc, char* argv[])
   // write it into "gargouille_small.ppm"
   //--------------------------------------------------------------------------
   // Copy image into image_small
-  struct picture image_small;
-  image_small.w = width;
-  image_small.h = height;
+  picture image_small;
+  image_small.w = image.w;
+  image_small.h = image.h;
   image_small.matrix = (u_char*) malloc(3 * image_small.w * image_small.h * sizeof(u_char));
-  memcpy(image_small.matrix, image, 3 * image_small.w *image_small.h * sizeof(*image_small.matrix));
+  memcpy(image_small.matrix, image.matrix, 3 * image_small.w *image_small.h * sizeof(*image_small.matrix));
 
   // Shrink image_small size 2-fold
-  ppm_shrink(&image_small.matrix, &image_small.w, &image_small.h, 2);
+  ppm_shrink(image_small, 2);
 
   // Write the desaturated image into "gargouille_small.ppm"
-  image_small.n= "gargouille_small.ppm";
-  ppm_write_to_file( image_small.w,image_small.h, image_small.matrix,image_small.n);
+  image_small.n= "gargouille_small.ppm"; printf("%d ",image.h);
+  ppm_write_to_file(image_small);
 
   // Free the not yet freed images
-  free(image);
-  free(image_small.matrix);
+  free(image.matrix);
 
   return 0;
 }
@@ -113,47 +111,47 @@ int main(int argc, char* argv[])
 //============================================================================
 //                           Function definitions
 //============================================================================
-void ppm_write_to_file(int width, int height, u_char* data, char* name)
+void ppm_write_to_file(picture image)
 {
   //Open new gargouille BW file
-  FILE* file = fopen(name, "wb"); 
+  FILE* file = fopen(image.n, "wb"); 
 
   // Write header
-  fprintf(file, "P6\n%d %d\n255\n", width, height);
+  fprintf(file, "P6\n%d %d\n255\n", image.w, image.h);
 
   // Write pixels
-  fwrite(data, 3, width*height, file);
+  fwrite(image.matrix, 3, (image.w)*(image.h), file);
 
   // Close file
   fclose(file);  
 }
 
-void ppm_read_from_file(int *width, int *height, u_char** data, char* name)
+void ppm_read_from_file(picture& image)
 {
   //Open gargouille file
-  FILE* file =  fopen(name, "rb");
+  FILE* file =  fopen(image.n, "rb");
  
  // Read file header
-  fscanf(file, "P6\n%d %d\n255\n", width, height);
-
+  fscanf(file, "P6\n%d %d\n255\n", &image.w, &image.h);
+ 
   // Allocate memory according to width and height
-  *data = (u_char*) malloc(3 * (*width) * (*height) * sizeof(**data));
+  image.matrix = (u_char*) malloc(3 * (image.w) * (image.h) * sizeof(image.matrix));
 
   // Read the actual image data
-  fread(*data, 3, (*width) * (*height), file);
+  fread(image.matrix, 3, (image.w) * (image.h), file);
 
   // Close file
   fclose(file);  
 }
 
-void ppm_desaturate(u_char* image, int width, int height)
+void ppm_desaturate(picture image)
 {
   int x, y;
 
   // For each pixel ...
-  for (x = 0 ; x < width ; x++)
+  for (x = 0 ; x < image.w ; x++)
   {
-    for (y = 0 ; y < height ; y++)
+    for (y = 0 ; y < image.h ; y++)
     {
       u_int grey_lvl = 0;
       int rgb_canal;
@@ -161,22 +159,22 @@ void ppm_desaturate(u_char* image, int width, int height)
       // Compute the grey level
       for (rgb_canal = 0 ; rgb_canal < 3 ; rgb_canal++)
       {
-        grey_lvl += image[ 3 * (y * width + x) + rgb_canal ];
+        grey_lvl += image.matrix[ 3 * (y * image.w + x) + rgb_canal ];
       }
       grey_lvl /= 3;
       assert(grey_lvl >= 0 && grey_lvl <=255);
 
       // Set the corresponding pixel's value in new_image
-      memset(&image[3 * (y * width + x)], grey_lvl, 3);
+      memset(&image.matrix[3 * (y * image.w + x)], grey_lvl, 3);
     }
   }
 }
 
-void ppm_shrink(u_char** image, int *width, int *height, int factor)
+void ppm_shrink(picture& image, int factor)
 {
   // Compute new image size and allocate memory for the new image
-  int new_width   = (*width) / factor;
-  int new_height  = (*height) / factor;
+  int new_width   = (image.w) / factor;
+  int new_height  = (image.h) / factor; 
   u_char* new_image = (u_char*) malloc(3 * new_width * new_height * sizeof(*new_image));
 
   // Precompute factor^2 (for performance reasons)
@@ -200,7 +198,7 @@ void ppm_shrink(u_char** image, int *width, int *height, int factor)
       // model image corresponding to the pixel we are creating
       int x0 = x * factor;
       int y0 = y * factor;
-      int i0 = 3 * (y0 * (*width) + x0);
+      int i0 = 3 * (y0 * (image.w) + x0);
 
       // Compute RGB values for the new pixel
       int dx, dy;
@@ -210,12 +208,12 @@ void ppm_shrink(u_char** image, int *width, int *height, int factor)
         {
           // Compute the offset of the current pixel (in the model image)
           // with regard to the top-left pixel of the current "set of pixels"
-          int delta_i = 3 * (dy * (*width) + dx);
+          int delta_i = 3 * (dy * (image.w) + dx);
 
           // Accumulate RGB values
-          red   += (*image)[i0+delta_i];
-          green += (*image)[i0+delta_i+1];
-          blue  += (*image)[i0+delta_i+2];
+          red   += (image.matrix)[i0+delta_i];
+          green += (image.matrix)[i0+delta_i+1];
+          blue  += (image.matrix)[i0+delta_i+2];
         }
       }
 
@@ -232,18 +230,13 @@ void ppm_shrink(u_char** image, int *width, int *height, int factor)
   }
 
   // Update image size
-  *width  = new_width;
-  *height = new_height;
-
+  image.w  = new_width;
+  image.h = new_height;
+  
   // Update image
-  free(*image);
-  *image = new_image;
+  free(image.matrix);
+  image.matrix = new_image; 
 }
-
-
-//==========================================================================
-//                              Struct definition
-//==========================================================================
 
 
 
