@@ -35,6 +35,7 @@ struct picture
   int w; //for width
   int h; //for height
   u_char* matrix; //for datas
+  char* n; // for name
 }; 
 
 
@@ -73,8 +74,8 @@ int main(int argc, char* argv[])
   ppm_desaturate(image_bw.matrix, width, height);
 
   // Write the desaturated image into "gargouille_BW.ppm"
-  char* ppm_output= "gargouille_BW.ppm";
-  ppm_write_to_file(width, height, image_bw.matrix, ppm_output);
+  image_bw.n ="gargouille_BW.ppm" ;
+  ppm_write_to_file(width, height, image_bw.matrix,image_bw.n);
 
   // Free the desaturated image
   free(image_bw.matrix);
@@ -85,21 +86,22 @@ int main(int argc, char* argv[])
   // write it into "gargouille_small.ppm"
   //--------------------------------------------------------------------------
   // Copy image into image_small
-  int width_small  = width;
-  int height_small = height;
-  u_char* image_small = (u_char*) malloc(3 * width_small * height_small * sizeof(*image_small));
-  memcpy(image_small, image, 3 * width_small * height_small * sizeof(*image_small));
+  struct picture image_small;
+  image_small.w = width;
+  image_small.h = height;
+  image_small.matrix = (u_char*) malloc(3 * image_small.w * image_small.h * sizeof(u_char));
+  memcpy(image_small.matrix, image, 3 * image_small.w *image_small.h * sizeof(*image_small.matrix));
 
   // Shrink image_small size 2-fold
-  ppm_shrink(&image_small, &width_small, &height_small, 2);
+  ppm_shrink(&image_small.matrix, &image_small.w, &image_small.h, 2);
 
   // Write the desaturated image into "gargouille_small.ppm"
-  ppm_output= "gargouille_small.ppm";
-  ppm_write_to_file(width_small, height_small, image_small, ppm_output);
+  image_small.n= "gargouille_small.ppm";
+  ppm_write_to_file( image_small.w,image_small.h, image_small.matrix,image_small.n);
 
   // Free the not yet freed images
   free(image);
-  free(image_small);
+  free(image_small.matrix);
 
   return 0;
 }
