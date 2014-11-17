@@ -26,6 +26,18 @@ void ppm_desaturate(u_char* image, int width, int height);
 void ppm_shrink(u_char** image, int *width, int *height, int factor);
 
 
+//============================================================================
+//                          Struct declarations & definitions
+//                      (struct must be declared before main : memory space needed MUST be known)
+//============================================================================
+struct picture
+{
+  int w; //for width
+  int h; //for height
+  u_char* matrix; //for datas
+}; 
+
+
 
 //============================================================================
 //                                  Main
@@ -35,6 +47,7 @@ int main(int argc, char* argv[])
   //--------------------------------------------------------------------------
   // Read file "gargouille.ppm" into image (width and height)
   //--------------------------------------------------------------------------
+  
   u_char* image = NULL;
   int width;
   int height;
@@ -48,20 +61,23 @@ int main(int argc, char* argv[])
   // write it into "gargouille_BW.ppm"
   //--------------------------------------------------------------------------
   // Copy image into image_bw
-  int width_bw  = width;
-  int height_bw = height;
-  u_char* image_bw = (u_char*) malloc(3 * width * height * sizeof(*image_bw));
-  memcpy(image_bw, image, 3 * width * height * sizeof(*image_bw));
+  struct picture image_bw;
+  image_bw.w = width;
+  image_bw.h = height; 
+  image_bw.matrix = (u_char*) malloc (3 * image_bw.w * image_bw.h * sizeof(u_char)); 
+  
+  memcpy(image_bw.matrix, image, 3 * width * height * sizeof(*image_bw.matrix));
+
 
   // Desaturate image_bw
-  ppm_desaturate(image_bw, width, height);
+  ppm_desaturate(image_bw.matrix, width, height);
 
   // Write the desaturated image into "gargouille_BW.ppm"
   char* ppm_output= "gargouille_BW.ppm";
-  ppm_write_to_file(width, height, image_bw, ppm_output);
+  ppm_write_to_file(width, height, image_bw.matrix, ppm_output);
 
   // Free the desaturated image
-  free(image_bw);
+  free(image_bw.matrix);
 
 
   //--------------------------------------------------------------------------
@@ -87,6 +103,8 @@ int main(int argc, char* argv[])
 
   return 0;
 }
+
+
 
 
 
@@ -219,6 +237,12 @@ void ppm_shrink(u_char** image, int *width, int *height, int factor)
   free(*image);
   *image = new_image;
 }
+
+
+//==========================================================================
+//                              Struct definition
+//==========================================================================
+
 
 
 
