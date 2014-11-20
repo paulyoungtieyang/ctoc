@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
   ppm_write_to_file(image_bw);
 
   // Free the desaturated image
-  free(image_bw.matrix);
+  delete(image_bw.matrix);
 
 
   //--------------------------------------------------------------------------
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
   ppm_write_to_file(image_small);
 
   // Free the not yet freed images
-  free(image.matrix);
+  delete(image.matrix);
 
   return 0;
 }

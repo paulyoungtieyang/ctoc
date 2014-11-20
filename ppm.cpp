@@ -135,7 +135,7 @@ void ppm_shrink(picture& image, int factor)
   image.h = new_height;
   
   // Update image
-  free(image.matrix);
+  delete(image.matrix);
   image.matrix = new_image; 
 }
 
