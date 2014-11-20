@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ppm.h"
+#include "picture.h"
 
 //============================================================================
 //                                  Main
@@ -14,10 +14,8 @@ int main(int argc, char* argv[])
   // Read file "gargouille.ppm" into image (width and height)
   //--------------------------------------------------------------------------
   picture image;
-  image.matrix=NULL;
-  image.n="gargouille.ppm";
-
-  ppm_read_from_file(image);
+  image.setName("gargouille.ppm");
+  image.ppm_read_from_file();
   
 
 
@@ -26,22 +24,18 @@ int main(int argc, char* argv[])
   // write it into "gargouille_BW.ppm"
   //--------------------------------------------------------------------------
   // Copy image into image_bw
-  picture image_bw;
-  image_bw.w = image.w;
-  image_bw.h = image.h; 
-  image_bw.matrix = new u_char[3 * image.w * image.h]; 
-  memcpy(image_bw.matrix, image.matrix, 3 * image_bw.w * image_bw.h * sizeof(*image_bw.matrix));
+  picture image_bw (image);
   
-
+  
   // Desaturate image_bw
-  ppm_desaturate(image_bw);
+  image_bw.ppm_desaturate();
 
   // Write the desaturated image into "gargouille_BW.ppm"
-  image_bw.n ="gargouille_BW.ppm" ;
-  ppm_write_to_file(image_bw);
+  image_bw.setName("gargouille_BW.ppm") ;
+  image_bw.ppm_write_to_file();
 
   // Free the desaturated image
-  delete(image_bw.matrix);
+  image_bw.~picture();
 
 
   //--------------------------------------------------------------------------
@@ -49,21 +43,17 @@ int main(int argc, char* argv[])
   // write it into "gargouille_small.ppm"
   //--------------------------------------------------------------------------
   // Copy image into image_small
-  picture image_small;
-  image_small.w = image.w;
-  image_small.h = image.h;
-  image_small.matrix = new u_char [3 * image_small.w * image_small.h];
-  memcpy(image_small.matrix, image.matrix, 3 * image_small.w *image_small.h * sizeof(*image_small.matrix));
-
+  picture image_small(image);
+  
   // Shrink image_small size 2-fold
-  ppm_shrink(image_small, 2);
+  image_small.ppm_shrink(2);
 
   // Write the desaturated image into "gargouille_small.ppm"
-  image_small.n= "gargouille_small.ppm";
-  ppm_write_to_file(image_small);
+  image_small.setName("gargouille_small.ppm");
+  image_small.ppm_write_to_file();
 
   // Free the not yet freed images
-  delete(image.matrix);
+  image.~picture();
 
   return 0;
 }
