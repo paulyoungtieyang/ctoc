@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
   image_bw.ppm_write_to_file();
 
   // Free the desaturated image
-  image_bw.~picture();
+  
 
 
   //--------------------------------------------------------------------------
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
   image_small.ppm_write_to_file();
 
   // Free the not yet freed images
-  image.~picture();
+  
 
   return 0;
 }
