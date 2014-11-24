@@ -22,7 +22,6 @@ class picture
   
   // Read the image contained in plain RGB ppm file <file>
   // into <data> and set <width> and <height> accordingly
-  // Warning: data is malloc_ed, don't forget to free it
   void ppm_read_from_file(void);
   
   // Desaturate (transform to B&W) <image> (of size <width> * <height>)
