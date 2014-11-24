@@ -1,5 +1,4 @@
 // This file must be added to the compilation process
-// g++ compilation is compulsory due to pass by reference
 
 class picture
 {
@@ -10,8 +9,11 @@ class picture
   char* name; // for name
 
  public:
+  // Constructors : default and copy
   picture(void);
   picture(const picture& old_picture);
+
+  // Destructor
   ~picture(void);
 
   // Write the image contained in <data> (of size <width> * <height>)
@@ -30,6 +32,7 @@ class picture
   // <width> and <height> are updated accordingly
   void ppm_shrink(int factor);
 
+  // Accessors
   int getWidth(void) const;
   int getHeight(void) const;
   char* getName(void) const;

@@ -5,15 +5,19 @@
 #include <string.h>
 #include "picture.h"
 
-picture::picture(void)
+//=======================================================================
+//                        Constructors and destructors
+//=======================================================================
+
+picture::picture(void) // default constructor
 {
   width=0;
   height=0;
-  matrix= new u_char [1];
+  matrix= new u_char [1];//memory must be allocated. 1 is the minimum
   name=NULL;
 }
 
-picture::picture(const picture& old_picture)
+picture::picture(const picture& old_picture)// copy destructor
 {
   width = old_picture.getWidth();
   height = old_picture.getHeight();
@@ -22,12 +26,14 @@ picture::picture(const picture& old_picture)
   memcpy(matrix, old_picture.getData(), 3 * width * height * sizeof(*matrix));
 }
 
-picture::~picture(void)
+picture::~picture(void) // destructor
 {
   delete [] matrix;
 }
 
-
+//========================================================================
+//                                  Accessors 
+//========================================================================
 
 int picture::getWidth(void) const
 {
@@ -54,6 +60,9 @@ void picture::setName(char* newName)
   name = newName;
 } 
 
+//=======================================================================
+//                           Manipulate images
+//=======================================================================
 
 
 void picture::ppm_write_to_file(void)

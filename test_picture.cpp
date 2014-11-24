@@ -25,18 +25,13 @@ int main(int argc, char* argv[])
   //--------------------------------------------------------------------------
   // Copy image into image_bw
   picture image_bw (image);
-  
-  
+   
   // Desaturate image_bw
   image_bw.ppm_desaturate();
 
-  // Write the desaturated image into "gargouille_BW.ppm"
+  // Write the desaturated image into "gargouille_BW.ppm" and free it
   image_bw.setName("gargouille_BW.ppm") ;
   image_bw.ppm_write_to_file();
-
-  // Free the desaturated image
-  
-
 
   //--------------------------------------------------------------------------
   // Create a resized copy of the image and
@@ -52,7 +47,7 @@ int main(int argc, char* argv[])
   image_small.setName("gargouille_small.ppm");
   image_small.ppm_write_to_file();
 
-  // Free the not yet freed images
+  // All images freed by the destructor
   
 
   return 0;
